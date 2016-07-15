@@ -123,6 +123,27 @@ if ( ! function_exists('view'))
 
 //--------------------------------------------------------------------
 
+if (! function_exists('view_cell'))
+{
+	/**
+	 * View cells are used within views to insert HTML chunks that are managed
+	 * by other classes. 
+	 *
+	 * @param string      $library
+	 * @param null        $params
+	 * @param int         $ttl
+	 * @param string|null $cacheName
+	 *
+	 * @return string
+	 */
+	function view_cell(string $library, $params = null, int $ttl = 0, string $cacheName = null)
+	{
+		return Services::viewcell()->render($library, $params, $ttl, $cacheName);
+	}
+}
+
+//--------------------------------------------------------------------
+
 if ( ! function_exists('esc'))
 {
 	/**
@@ -564,3 +585,41 @@ if (! function_exists('redirect'))
 
 //--------------------------------------------------------------------
 
+if ( ! function_exists('stringify_attributes'))
+{
+	/**
+	 * Stringify attributes for use in HTML tags.
+	 *
+	 * Helper function used to convert a string, array, or object
+	 * of attributes to a string.
+	 *
+	 * @param	mixed	string, array, object
+	 * @param	bool
+	 * @return	string
+	 */
+	function stringify_attributes($attributes, $js = FALSE) : string
+	{
+		$atts = '';
+
+		if (empty($attributes))
+		{
+			return $atts;
+		}
+
+		if (is_string($attributes))
+		{
+			return ' '.$attributes;
+		}
+
+		$attributes = (array) $attributes;
+
+		foreach ($attributes as $key => $val)
+		{
+			$atts .= ($js) ? $key.'='.$val.',' : ' '.$key.'="'.$val.'"';
+		}
+
+		return rtrim($atts, ',');
+	}
+}
+
+// ------------------------------------------------------------------------

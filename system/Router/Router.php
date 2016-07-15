@@ -377,7 +377,7 @@ class Router implements RouterInterface
 		$segments = $this->validateRequest($segments);
 
 		// If we don't have any segments left - try the default controller;
-		// WARNING: Directories get shifted out of tge segments array.
+		// WARNING: Directories get shifted out of the segments array.
 		if (empty($segments))
 		{
 			$this->setDefaultController();
@@ -399,6 +399,20 @@ class Router implements RouterInterface
 		if (! empty($segments))
 		{
 			$this->params = $segments;
+		}
+
+		// Load the file so that it's available for CodeIgniter.
+		$file = APPPATH.'Controllers/'.$this->directory.$this->controller.'.php';
+		if (file_exists($file))
+		{
+			include $file;
+		}
+
+		// Ensure the controller stores the fully-qualified class name
+		// We have to check for a length over 1, since by default it will be '\'
+		if (strpos($this->controller, '\\') === false && strlen($this->collection->getDefaultNamespace()) > 1)
+		{
+			$this->controller = str_replace('/', '\\', $this->collection->getDefaultNamespace().$this->directory.$this->controller);
 		}
 	}
 
@@ -427,7 +441,7 @@ class Router implements RouterInterface
 
 			if ( ! file_exists(APPPATH.'Controllers/'.$test.'.php')
 			     && $directory_override === false
-			     && is_dir(APPPATH.'Controllers/'.$this->directory.$segments[0])
+			     && is_dir(APPPATH.'Controllers/'.$this->directory.ucfirst($segments[0]))
 			)
 			{
 				$this->setDirectory(array_shift($segments), true);
@@ -451,6 +465,8 @@ class Router implements RouterInterface
 	 */
 	protected function setDirectory(string $dir = null, $append = false)
 	{
+		$dir = ucfirst($dir);
+
 		if ($append !== TRUE || empty($this->directory))
 		{
 			$this->directory = str_replace('.', '', trim($dir, '/')).'/';
